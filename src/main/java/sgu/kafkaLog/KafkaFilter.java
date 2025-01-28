@@ -1,33 +1,32 @@
-package sgu.kafkaLog.middlewares;
-
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpFilter;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
-import sgu.kafkaLog.KafkaLog;
-import sgu.kafkaLog.KafkaService;
+package sgu.kafkaLog;
 
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import sgu.kafkaLog.middlewares.HttpServletRequestCopier;
+import sgu.kafkaLog.middlewares.HttpServletResponseCopier;
+import org.springframework.stereotype.Component;
+import jakarta.servlet.http.HttpFilter;
 
 @Component
-public class LogFilter extends HttpFilter {
+public class KafkaFilter extends HttpFilter {
     private FilterConfig filterConfigObj;
     private final Gson gson = new Gson();
     private final KafkaService kafkaService;
 
-    public LogFilter(KafkaService kafkaService) {
+    public KafkaFilter(KafkaService kafkaService) {
         this.kafkaService = kafkaService;
     }
 
-    public void init(FilterConfig config) throws ServletException {
+    public void init(FilterConfig config) {
         this.filterConfigObj = config;
     }
 
@@ -40,7 +39,6 @@ public class LogFilter extends HttpFilter {
         KafkaLog kafkaLog = getKafkaLogFromCopies((HttpServletRequest) request, (HttpServletResponse) response, chain);
         kafkaService.sendKafkaMessage(kafkaLog);
     }
-
 
     private String getRequestQuery(HttpServletRequest request){
 
